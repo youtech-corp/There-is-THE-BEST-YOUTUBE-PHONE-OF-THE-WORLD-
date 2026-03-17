@@ -3,114 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTechPhone - Full Setup Edition</title>
+    <title>YouTechPhone - Pin Setup Edition</title>
     <style>
         :root { --yt-red: #FF0000; --ios-blue: #007AFF; --touch-green: #34C759; }
         body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: black; }
 
-        /* CHASSIS & SCREEN */
         .phone { background: #1a1a1a; border-radius: 50px; border: 4px solid #333; position: relative; height: 90vh; aspect-ratio: 1 / 2; max-width: 95vw; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
         .screen { width: 92%; height: 92%; background: #000; border-radius: 35px; margin: 4% auto; overflow: hidden; position: relative; }
         .layer { position: absolute; inset: 0; display: none; flex-direction: column; padding: 25px; box-sizing: border-box; }
         .active { display: flex !important; }
 
-        /* FOND BLANC (SETUP) */
+        /* SETUP STYLES */
         .setup-white { background: white; color: black; text-align: center; }
-        .setup-white h2 { font-size: 24px; margin-bottom: 10px; }
-        .setup-white p { font-size: 14px; color: #666; }
-
-        /* INSTALL & BOOT */
-        .dark-layer { background: #000; color: white; justify-content: center; align-items: center; }
-        .install-fill { width: 0%; height: 100%; background: var(--yt-red); transition: width 10s linear; }
-
-        /* TERMES & CONDITIONS */
-        .terms-box { text-align: left; font-size: 11px; background: #f2f2f7; padding: 10px; border-radius: 10px; height: 150px; overflow-y: scroll; margin: 15px 0; border: 1px solid #ddd; }
-
-        /* BIOMETRIE UI */
-        .bio-box { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #eee; margin: 20px auto; overflow: hidden; position: relative; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
-        #webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .scan-fill { position: absolute; inset: 0; border: 4px solid var(--touch-green); border-radius: 50%; clip-path: inset(100% 0 0 0); transition: clip-path 0.1s linear; }
-
-        /* BOUTONS */
         .ios-btn { background: var(--ios-blue); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: auto; }
-        .ios-btn-alt { color: var(--ios-blue); background: none; border: none; padding: 10px; cursor: pointer; font-size: 14px; margin-top: 5px; }
-
-        /* KEYPAD & DOTS */
-        .dots { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .dot { width: 12px; height: 12px; border: 1px solid white; border-radius: 50%; }
-        .dot.filled { background: white; }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .key { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; color: white; }
         
+        /* PIN DOTS */
+        .dots { display: flex; justify-content: center; gap: 15px; margin: 30px 0; }
+        .dot { width: 15px; height: 15px; border: 1px solid #333; border-radius: 50%; transition: 0.2s; }
+        .setup-white .dot { border-color: #999; }
+        .dot.filled { background: #333; border-color: #333; }
+
+        /* KEYPAD */
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; max-width: 250px; margin: 0 auto; }
+        .key { width: 60px; height: 60px; background: #f2f2f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+        .key:active { background: #d1d1d6; }
+
+        /* DARK KEYPAD (FOR UNLOCK) */
+        .dark-layer .key { background: rgba(255,255,255,0.1); color: white; }
+        .dark-layer .dot { border-color: white; }
+        .dark-layer .dot.filled { background: white; }
+
         .shake { animation: shake 0.3s; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        
+        /* SCAN UI */
+        .bio-box { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #eee; margin: 20px auto; overflow: hidden; position: relative; }
+        .scan-fill { position: absolute; inset: 0; border: 4px solid var(--touch-green); border-radius: 50%; clip-path: inset(100% 0 0 0); transition: clip-path 0.1s linear; }
     </style>
 </head>
 <body>
 
 <div class="phone">
     <div class="screen">
-        <div id="layer-install" class="layer dark-layer active">
-            <div style="font-size: 50px;">🎬</div>
-            <div style="width:70%; height:4px; background:#222; margin-top:20px;"><div id="install-fill" class="install-fill"></div></div>
+        <div id="layer-install" class="layer active" style="background:#000; justify-content:center; align-items:center;">
+            <div style="font-size: 40px;">🎬</div>
+            <div style="width:70%; height:4px; background:#222; margin-top:20px;"><div id="install-fill" style="width:0%; height:100%; background:red; transition:10s linear;"></div></div>
         </div>
 
         <div id="layer-hello" class="layer setup-white">
-            <h1 style="margin-top:40%; font-size: 32px;" id="hello-text">Bonjour</h1>
-            <button class="ios-btn" onclick="showLayer('terms')">Configurer</button>
-        </div>
-
-        <div id="layer-terms" class="layer setup-white">
-            <h2>Conditions Générales</h2>
-            <div class="terms-box">
-                <b>Utilisation de YouTechPhone</b><br>
-                En utilisant cet appareil YouTechPhone, vous acceptez que YouTubeOS soit le système d'exploitation principal. <br><br>
-                <b>Données Biométriques</b><br>
-                Vos données Face ID et Touch ID sont stockées localement dans l'enclave sécurisée de votre navigateur. <br><br>
-                <b>Garantie</b><br>
-                Toute tentative de "Factory Reset" via le bouton ♻️ entraînera une purge immédiate des données. <br>
-                YouTech s'engage à fournir une interface fluide et interactive.
-            </div>
-            <p>Acceptez-vous les termes de YouTechPhone ?</p>
-            <button class="ios-btn" onclick="showLayer('setup-face')">Accepter</button>
-            <button class="ios-btn-alt" onclick="location.reload()">Refuser</button>
+            <h1 style="margin-top:30%;">Bonjour</h1>
+            <button class="ios-btn" onclick="showLayer('setup-face')">Configurer Face ID</button>
         </div>
 
         <div id="layer-setup-face" class="layer setup-white">
             <h2>Face ID</h2>
-            <p>Positionnez votre visage pour configurer YouTech Face ID.</p>
-            <div class="bio-box" style="background: #000;">
-                <video id="webcam" autoplay playsinline muted></video>
-                <div id="fill-face" class="scan-fill"></div>
-            </div>
-            <button class="ios-btn" onclick="initBio('face')">Démarrer le scan</button>
+            <div class="bio-box" style="background:#000;"><video id="v" style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);" autoplay muted></video><div id="f-face" class="scan-fill"></div></div>
+            <button class="ios-btn" onclick="startBio('face')">Démarrer le scan</button>
         </div>
 
-        <div id="layer-setup-touch" class="layer setup-white">
-            <h2>Touch ID</h2>
-            <p>Posez votre doigt sur le capteur YouTech pour enregistrer l'empreinte.</p>
-            <div class="bio-box">
-                <span style="font-size:50px;">🖐️</span>
-                <div id="fill-touch" class="scan-fill"></div>
-            </div>
-            <button class="ios-btn" onclick="initBio('touch')">Enregistrer l'empreinte</button>
-        </div>
-
-        <div id="layer-passcode" class="layer" style="background:#000; align-items:center; justify-content:center;">
-            <p style="color:white">Entrez le code YouTech</p>
-            <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-            <div class="keypad" id="key-box">
-                <div class="key" onclick="pressKey('1')">1</div><div class="key" onclick="pressKey('2')">2</div><div class="key" onclick="pressKey('3')">3</div>
-                <div class="key" onclick="pressKey('4')">4</div><div class="key" onclick="pressKey('5')">5</div><div class="key" onclick="pressKey('6')">6</div>
-                <div class="key" onclick="pressKey('7')">7</div><div class="key" onclick="pressKey('8')">8</div><div class="key" onclick="pressKey('9')">9</div>
-                <div class="key" style="visibility:hidden"></div><div class="key" onclick="pressKey('0')">0</div>
+        <div id="layer-setup-pin" class="layer setup-white">
+            <h2 id="pin-title">Créer un code</h2>
+            <p id="pin-desc">Un code protège vos données YouTech.</p>
+            <div class="dots" id="setup-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <div class="keypad" id="setup-keypad">
+                <div class="key" onclick="pressSetupKey('1')">1</div><div class="key" onclick="pressSetupKey('2')">2</div><div class="key" onclick="pressSetupKey('3')">3</div>
+                <div class="key" onclick="pressSetupKey('4')">4</div><div class="key" onclick="pressSetupKey('5')">5</div><div class="key" onclick="pressSetupKey('6')">6</div>
+                <div class="key" onclick="pressSetupKey('7')">7</div><div class="key" onclick="pressSetupKey('8')">8</div><div class="key" onclick="pressSetupKey('9')">9</div>
+                <div class="key" style="visibility:hidden"></div><div class="key" onclick="pressSetupKey('0')">0</div>
             </div>
         </div>
 
-        <div id="layer-home" class="layer dark-layer">
-            <div onclick="location.reload()" style="text-align:center; cursor:pointer;">
-                <div style="width:70px;height:70px;background:#333;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:10px;">♻️</div>
-                <span>Réinitialiser</span>
+        <div id="layer-home" class="layer" style="background:#000; color:white; justify-content:center; align-items:center;">
+            <div style="text-align:center;">
+                <div style="font-size:50px;">✅</div>
+                <p>YouTechPhone Configuré</p>
+                <button class="ios-btn" onclick="location.reload()">Réinitialiser (Reset)</button>
             </div>
         </div>
     </div>
@@ -118,65 +85,73 @@
 
 <script>
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let currentPass = "";
-    const PASS = "1503";
+    let tempPin = "";
+    let finalPin = "";
+    let step = 1; // 1: Création, 2: Confirmation
 
     function playSound(t) {
         const o = audioCtx.createOscillator(), g = audioCtx.createGain();
         o.connect(g); g.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
-        if(t==='startup'){ o.frequency.exponentialRampToValueAtTime(440, now+1); g.gain.linearRampToValueAtTime(0, now+1); }
-        if(t==='scan'){ o.type='square'; o.frequency.setValueAtTime(800, now); g.gain.setValueAtTime(0.02, now); g.gain.linearRampToValueAtTime(0, now+0.05); }
-        if(t==='error'){ o.type='sawtooth'; o.frequency.setValueAtTime(100, now); g.gain.setValueAtTime(0.2, now); g.gain.linearRampToValueAtTime(0, now+0.3); }
-        if(t==='success'){ o.frequency.setValueAtTime(523, now); o.frequency.exponentialRampToValueAtTime(1046, now+0.3); g.gain.setValueAtTime(0.2, now); }
-        o.start(); o.stop(now+0.5);
+        if(t==='scan'){ o.type='square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); g.gain.setValueAtTime(0.01, audioCtx.currentTime); }
+        if(t==='error'){ o.frequency.setValueAtTime(120, audioCtx.currentTime); g.gain.setValueAtTime(0.2, audioCtx.currentTime); }
+        if(t==='success'){ o.frequency.setValueAtTime(500, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime+0.2); }
+        o.start(); o.stop(audioCtx.currentTime+0.2);
     }
 
     window.onload = () => {
         document.getElementById('install-fill').style.width = '100%';
-        setTimeout(() => { playSound('startup'); showLayer('hello'); }, 10500);
-        
-        const greetings = ["Bonjour", "Hello", "Hola", "Ciao"];
-        let i = 0; setInterval(() => { i=(i+1)%greetings.length; document.getElementById('hello-text').innerText = greetings[i]; }, 3000);
+        setTimeout(() => showLayer('hello'), 10500);
     };
 
-    async function initBio(type) {
-        const fill = document.getElementById(type === 'face' ? 'fill-face' : 'fill-touch');
-        let stream = null;
-        if(type === 'face') {
-            try { stream = await navigator.mediaDevices.getUserMedia({video:true}); document.getElementById('webcam').srcObject = stream; } catch(e) { alert("Caméra bloquée"); }
-        }
-
+    async function startBio(type) {
+        const fill = document.getElementById('f-face');
+        let s = await navigator.mediaDevices.getUserMedia({video:true});
+        document.getElementById('v').srcObject = s;
         let p = 0;
         const iv = setInterval(() => {
-            p += 2;
-            playSound('scan');
-            fill.style.clipPath = `inset(${100-p}% 0 0 0)`;
-            if(p >= 100) {
-                clearInterval(iv);
-                if(stream) stream.getTracks().forEach(t => t.stop());
-                setTimeout(() => { showLayer(type === 'face' ? 'setup-touch' : 'passcode'); }, 1000);
-            }
-        }, 80);
+            p+=2; playSound('scan'); fill.style.clipPath = `inset(${100-p}% 0 0 0)`;
+            if(p>=100){ clearInterval(iv); s.getTracks().forEach(t=>t.stop()); showLayer('setup-pin'); }
+        }, 50);
     }
 
-    function pressKey(n) {
-        if(currentPass.length < 4) {
-            currentPass += n;
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach((d, i) => i < currentPass.length ? d.classList.add('filled') : d.classList.remove('filled'));
-            if(currentPass.length === 4) {
-                if(currentPass === PASS) { playSound('success'); showLayer('home'); }
-                else { 
-                    playSound('error'); 
-                    document.getElementById('key-box').classList.add('shake');
-                    setTimeout(() => { document.getElementById('key-box').classList.remove('shake'); currentPass = ""; dots.forEach(d => d.classList.remove('filled')); }, 400);
+    function pressSetupKey(n) {
+        tempPin += n;
+        updateDots();
+        if(tempPin.length === 4) {
+            if(step === 1) {
+                finalPin = tempPin;
+                tempPin = "";
+                step = 2;
+                setTimeout(() => {
+                    document.getElementById('pin-title').innerText = "Confirmez votre code";
+                    updateDots();
+                }, 300);
+            } else {
+                if(tempPin === finalPin) {
+                    playSound('success');
+                    showLayer('home');
+                } else {
+                    playSound('error');
+                    document.getElementById('setup-dots').classList.add('shake');
+                    setTimeout(() => {
+                        document.getElementById('setup-dots').classList.remove('shake');
+                        tempPin = "";
+                        updateDots();
+                    }, 400);
                 }
             }
         }
     }
 
-    function showLayer(id) { document.querySelectorAll('.layer').forEach(l => l.classList.remove('active')); document.getElementById('layer-'+id).classList.add('active'); }
+    function updateDots() {
+        const ds = document.querySelectorAll('#setup-dots .dot');
+        ds.forEach((d, i) => i < tempPin.length ? d.classList.add('filled') : d.classList.remove('filled'));
+    }
+
+    function showLayer(id) {
+        document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+        document.getElementById('layer-' + id).classList.add('active');
+    }
 </script>
 </body>
 </html>
