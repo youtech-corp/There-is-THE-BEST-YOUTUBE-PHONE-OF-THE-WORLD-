@@ -3,155 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTechPhone - Pin Setup Edition</title>
+    <title>YouTech B Fold 1 - Vision Guard</title>
     <style>
-        :root { --yt-red: #FF0000; --ios-blue: #007AFF; --touch-green: #34C759; }
-        body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: black; }
+        :root { --yt-red: #FF0000; --ios-blue: #007AFF; --touch-green: #34C759; --led-white: #FFFFFF; --led-red: #FF3B30; }
+        body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; touch-action: none; }
 
-        .phone { background: #1a1a1a; border-radius: 50px; border: 4px solid #333; position: relative; height: 90vh; aspect-ratio: 1 / 2; max-width: 95vw; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
-        .screen { width: 92%; height: 92%; background: #000; border-radius: 35px; margin: 4% auto; overflow: hidden; position: relative; }
-        .layer { position: absolute; inset: 0; display: none; flex-direction: column; padding: 25px; box-sizing: border-box; }
+        /* --- CHASSIS B FOLD 1 --- */
+        .phone-frame { 
+            background: #1a1a1a; border-radius: 40px; border: 4px solid #333; position: relative; 
+            height: 85vh; width: 300px; 
+            transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; box-shadow: 0 0 60px rgba(0,0,0,1);
+        }
+        .phone-frame.unfolded { width: 620px; }
+
+        /* --- MECANIQUE POP-UP CAMERA & LED --- */
+        .camera-popup {
+            position: absolute; left: 70%; top: 0px; /* Caché au départ */
+            width: 40px; height: 10px; background: #111;
+            border-radius: 5px 5px 0 0; border: 2px solid #333; border-bottom: none;
+            z-index: 50; transition: top 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex; align-items: center; justify-content: space-around; padding: 0 2px;
+        }
+        .camera-popup.deployed { top: -12px; height: 15px; } /* Déployé */
+
+        .cam-lens { width: 6px; height: 6px; background: #000; border-radius: 50%; border: 1px solid #333; }
+        
+        /* LA LED D'ÉTAT */
+        .status-led { 
+            width: 4px; height: 4px; background: transparent; border-radius: 50%; 
+            box-shadow: 0 0 0px transparent; transition: 0.2s; 
+        }
+        /* États de la LED */
+        .status-led.active { background: var(--led-white); box-shadow: 0 0 5px var(--led-white), 0 0 10px var(--led-white); }
+        .status-led.error { background: var(--led-red); box-shadow: 0 0 5px var(--led-red), 0 0 10px var(--led-red); animation: led-blink 0.5s infinite; }
+
+        /* BOUTONS PHYSIQUES */
+        .btn-top { position: absolute; left: 50%; top: -8px; width: 65px; height: 8px; background: #444; border-radius: 5px 5px 0 0; transform: translateX(-50%); cursor: pointer; z-index: 2000; }
+        .btn-fold { position: absolute; right: -8px; top: 40%; width: 10px; height: 85px; background: var(--yt-red); border-radius: 0 5px 5px 0; cursor: pointer; z-index: 2000; box-shadow: 2px 0 10px rgba(255,0,0,0.3); }
+
+        /* ECRAN UNIQUE UNIFIÉ */
+        .unified-display { 
+            position: absolute; inset: 10px; background: #000; border-radius: 32px; 
+            overflow: hidden; display: flex; width: calc(100% - 20px); height: calc(100% - 20px); z-index: 100;
+        }
+
+        .layer { position: absolute; inset: 0; display: none; flex-direction: column; box-sizing: border-box; }
         .active { display: flex !important; }
 
-        /* SETUP STYLES */
-        .setup-white { background: white; color: black; text-align: center; }
-        .ios-btn { background: var(--ios-blue); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: auto; }
-        
-        /* PIN DOTS */
-        .dots { display: flex; justify-content: center; gap: 15px; margin: 30px 0; }
-        .dot { width: 15px; height: 15px; border: 1px solid #333; border-radius: 50%; transition: 0.2s; }
-        .setup-white .dot { border-color: #999; }
-        .dot.filled { background: #333; border-color: #333; }
+        .wallpaper { position: absolute; inset: 0; background: radial-gradient(circle at center, #232526, #000000); z-index: -1; }
 
-        /* KEYPAD */
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; max-width: 250px; margin: 0 auto; }
-        .key { width: 60px; height: 60px; background: #f2f2f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
-        .key:active { background: #d1d1d6; }
+        /* BOOT SCREEN */
+        .brand-name { font-size: 24px; font-weight: 700; letter-spacing: 5px; }
+        .model-name { font-size: 14px; color: var(--yt-red); letter-spacing: 2px; margin-bottom: 20px; }
 
-        /* DARK KEYPAD (FOR UNLOCK) */
-        .dark-layer .key { background: rgba(255,255,255,0.1); color: white; }
-        .dark-layer .dot { border-color: white; }
-        .dark-layer .dot.filled { background: white; }
+        /* LOCK SCREEN & FACE ID */
+        .lock-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .time { font-size: 55px; font-weight: 200; transition: 0.6s; }
+        .unfolded .time { font-size: 100px; }
 
-        .shake { animation: shake 0.3s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        
-        /* SCAN UI */
-        .bio-box { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #eee; margin: 20px auto; overflow: hidden; position: relative; }
-        .scan-fill { position: absolute; inset: 0; border: 4px solid var(--touch-green); border-radius: 50%; clip-path: inset(100% 0 0 0); transition: clip-path 0.1s linear; }
+        /* FACE ID VISUALIZER */
+        .face-id-box { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #333; margin: 20px auto; overflow: hidden; position: relative; background: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        #webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .scan-ring { position: absolute; inset: 0; border: 3px solid var(--touch-green); border-radius: 50%; clip-path: inset(100% 0 0 0); transition: clip-path 0.1s linear; }
+
+        /* TASKBAR */
+        .taskbar {
+            position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
+            width: 80%; height: 50px; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: space-around;
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 4000;
+        }
+        .unfolded .taskbar { bottom: 25px; }
+        .task-icon { font-size: 24px; cursor: pointer; opacity: 0.8; transition: transform 0.2s; }
+        .task-icon:hover { transform: scale(1.2); opacity: 1; }
+
+        /* HOME BAR */
+        .home-bar { 
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 5px; background: rgba(255,255,255,0.5); border-radius: 3px; cursor: pointer; z-index: 3000; transition: width 0.5s, opacity 0.3s;
+        }
+        .unfolded .home-bar { opacity: 0; pointer-events: none; }
+
+        /* ANIMATIONS */
+        @keyframes led-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     </style>
 </head>
 <body>
 
-<div class="phone">
-    <div class="screen">
-        <div id="layer-install" class="layer active" style="background:#000; justify-content:center; align-items:center;">
-            <div style="font-size: 40px;">🎬</div>
-            <div style="width:70%; height:4px; background:#222; margin-top:20px;"><div id="install-fill" style="width:0%; height:100%; background:red; transition:10s linear;"></div></div>
+<div class="phone-frame" id="frame">
+    <div class="camera-popup" id="cam-popup">
+        <div class="cam-lens"></div>
+        <div class="status-led" id="cam-led"></div>
+    </div>
+
+    <div class="btn-top" onclick="bootSystem()"></div>
+    <div class="btn-fold" onclick="foldMechanical()"></div>
+
+    <div class="unified-display">
+        <div class="wallpaper"></div>
+
+        <div id="layer-off" class="layer active" style="background:#000;"></div>
+
+        <div id="layer-boot" class="layer" style="justify-content:center; align-items:center;">
+            <div class="brand-name">YOUTECH</div>
+            <div class="model-name">B FOLD 1</div>
+            <div style="width: 140px; height: 2px; background: #222;"><div id="boot-fill" style="width:0%; height:100%; background:white; transition: 4s linear;"></div></div>
         </div>
 
-        <div id="layer-hello" class="layer setup-white">
-            <h1 style="margin-top:30%;">Bonjour</h1>
-            <button class="ios-btn" onclick="showLayer('setup-face')">Configurer Face ID</button>
-        </div>
-
-        <div id="layer-setup-face" class="layer setup-white">
-            <h2>Face ID</h2>
-            <div class="bio-box" style="background:#000;"><video id="v" style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);" autoplay muted></video><div id="f-face" class="scan-fill"></div></div>
-            <button class="ios-btn" onclick="startBio('face')">Démarrer le scan</button>
-        </div>
-
-        <div id="layer-setup-pin" class="layer setup-white">
-            <h2 id="pin-title">Créer un code</h2>
-            <p id="pin-desc">Un code protège vos données YouTech.</p>
-            <div class="dots" id="setup-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-            <div class="keypad" id="setup-keypad">
-                <div class="key" onclick="pressSetupKey('1')">1</div><div class="key" onclick="pressSetupKey('2')">2</div><div class="key" onclick="pressSetupKey('3')">3</div>
-                <div class="key" onclick="pressSetupKey('4')">4</div><div class="key" onclick="pressSetupKey('5')">5</div><div class="key" onclick="pressSetupKey('6')">6</div>
-                <div class="key" onclick="pressSetupKey('7')">7</div><div class="key" onclick="pressSetupKey('8')">8</div><div class="key" onclick="pressSetupKey('9')">9</div>
-                <div class="key" style="visibility:hidden"></div><div class="key" onclick="pressSetupKey('0')">0</div>
+        <div id="layer-lock" class="layer">
+            <div class="lock-content">
+                <div class="time" id="clock">14:11</div>
+                <div class="face-id-box" onclick="startFaceID()" id="face-ui">
+                    <video id="webcam" autoplay muted playsinline></video>
+                    <div id="scan-ring" class="scan-ring"></div>
+                    <span id="face-icon" style="font-size:30px;">👤</span>
+                </div>
+                <p id="face-status" style="font-size: 12px; color: rgba(255,255,255,0.5);">Cliquer pour Face ID</p>
             </div>
         </div>
 
-        <div id="layer-home" class="layer" style="background:#000; color:white; justify-content:center; align-items:center;">
-            <div style="text-align:center;">
-                <div style="font-size:50px;">✅</div>
-                <p>YouTechPhone Configuré</p>
-                <button class="ios-btn" onclick="location.reload()">Réinitialiser (Reset)</button>
-            </div>
+        <div id="layer-home" class="layer">
+            <div style="padding: 20px; text-align: center; opacity: 0.3; font-size: 10px; letter-spacing: 5px;">YOUTECH B FOLD 1</div>
+            <p style="text-align:center;">Système Actif. Dépliez pour la Taskbar.</p>
         </div>
+
+        <div class="taskbar">
+            <div class="task-icon" onclick="pressHome()">🏠</div>
+            <div class="task-icon">📞</div>
+            <div class="task-icon">💬</div>
+            <div class="task-icon">🌐</div>
+            <div class="task-icon">📁</div>
+        </div>
+
+        <div class="home-bar" onclick="pressHome()"></div>
     </div>
 </div>
 
 <script>
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let tempPin = "";
-    let finalPin = "";
-    let step = 1; // 1: Création, 2: Confirmation
+    let isPowered = false, isUnlocked = false, isFolded = true, camStream = null;
 
-    function playSound(t) {
+    function sound(f1, f2, dur=0.3) {
         const o = audioCtx.createOscillator(), g = audioCtx.createGain();
         o.connect(g); g.connect(audioCtx.destination);
-        if(t==='scan'){ o.type='square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); g.gain.setValueAtTime(0.01, audioCtx.currentTime); }
-        if(t==='error'){ o.frequency.setValueAtTime(120, audioCtx.currentTime); g.gain.setValueAtTime(0.2, audioCtx.currentTime); }
-        if(t==='success'){ o.frequency.setValueAtTime(500, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime+0.2); }
-        o.start(); o.stop(audioCtx.currentTime+0.2);
+        o.frequency.setValueAtTime(f1, audioCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(f2, audioCtx.currentTime + dur);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(0, now + dur);
+        o.start(); o.stop(audioCtx.currentTime + dur);
     }
 
-    window.onload = () => {
-        document.getElementById('install-fill').style.width = '100%';
-        setTimeout(() => showLayer('hello'), 10500);
-    };
+    // GESTION LED & POPUP
+    function setCamLED(state) {
+        const popup = document.getElementById('cam-popup');
+        const led = document.getElementById('cam-led');
+        led.classList.remove('active', 'error');
 
-    async function startBio(type) {
-        const fill = document.getElementById('f-face');
-        let s = await navigator.mediaDevices.getUserMedia({video:true});
-        document.getElementById('v').srcObject = s;
-        let p = 0;
-        const iv = setInterval(() => {
-            p+=2; playSound('scan'); fill.style.clipPath = `inset(${100-p}% 0 0 0)`;
-            if(p>=100){ clearInterval(iv); s.getTracks().forEach(t=>t.stop()); showLayer('setup-pin'); }
-        }, 50);
-    }
-
-    function pressSetupKey(n) {
-        tempPin += n;
-        updateDots();
-        if(tempPin.length === 4) {
-            if(step === 1) {
-                finalPin = tempPin;
-                tempPin = "";
-                step = 2;
-                setTimeout(() => {
-                    document.getElementById('pin-title').innerText = "Confirmez votre code";
-                    updateDots();
-                }, 300);
-            } else {
-                if(tempPin === finalPin) {
-                    playSound('success');
-                    showLayer('home');
-                } else {
-                    playSound('error');
-                    document.getElementById('setup-dots').classList.add('shake');
-                    setTimeout(() => {
-                        document.getElementById('setup-dots').classList.remove('shake');
-                        tempPin = "";
-                        updateDots();
-                    }, 400);
-                }
-            }
+        if(state === 'active') {
+            popup.classList.add('deployed');
+            led.classList.add('active'); // BLANC
+        } else if(state === 'error') {
+            popup.classList.add('deployed'); // Sort pour montrer le problème
+            led.classList.add('error'); // ROUGE Clignotant
+            sound(150, 100, 0.5);
+        } else {
+            popup.classList.remove('deployed'); // Rentre
         }
     }
 
-    function updateDots() {
-        const ds = document.querySelectorAll('#setup-dots .dot');
-        ds.forEach((d, i) => i < tempPin.length ? d.classList.add('filled') : d.classList.remove('filled'));
+    // FACE ID RÉEL
+    async function startFaceID() {
+        if(!isPowered || isUnlocked) return;
+        
+        const video = document.getElementById('webcam');
+        const icon = document.getElementById('face-icon');
+        const ring = document.getElementById('scan-ring');
+        const status = document.getElementById('face-status');
+
+        icon.style.display = 'none'; // Cache l'icône
+        status.innerText = "Analyse...";
+
+        try {
+            camStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = camStream;
+            setCamLED('active'); // Sort Popup + LED BLANCHE
+
+            let p = 0;
+            const iv = setInterval(() => {
+                p += 4;
+                ring.style.clipPath = `inset(${100-p}% 0 0 0)`;
+                if(p >= 100) {
+                    clearInterval(iv);
+                    stopCam();
+                    unlockSuccess();
+                }
+            }, 80);
+        } catch(e) {
+            // Échec accès caméra
+            icon.style.display = 'block';
+            status.innerText = "Erreur Caméra";
+            status.style.color = "var(--led-red)";
+            setCamLED('error'); // LED ROUGE
+            setTimeout(() => setCamLED('off'), 2000); // Rentre après 2s
+        }
+    }
+
+    function stopCam() {
+        if(camStream) camStream.getTracks().forEach(t => t.stop());
+        setCamLED('off'); // Rentre Popup
+    }
+
+    function unlockSuccess() {
+        isUnlocked = true; sound(900, 1300, 0.2);
+        document.getElementById('face-ui').style.borderColor = "var(--touch-green)";
+        document.getElementById('face-status').innerText = "Déverrouillé !";
+        document.getElementById('face-status').style.color = "var(--touch-green)";
+    }
+
+    // LOGIQUE SYSTEME EXISTANTE
+    function bootSystem() {
+        if(!isPowered) {
+            isPowered = true; sound(300, 800, 0.6);
+            showLayer('boot'); document.getElementById('boot-fill').style.width = "100%";
+            setTimeout(() => showLayer('lock'), 4500);
+        } else { stopCam(); location.reload(); }
+    }
+
+    function foldMechanical() {
+        const frame = document.getElementById('frame');
+        isFolded = !isFolded;
+        sound(isFolded ? 450 : 350, isFolded ? 300 : 700, 0.4);
+        if(!isFolded) frame.classList.add('unfolded');
+        else frame.classList.remove('unfolded');
+    }
+
+    function pressHome() {
+        if(!isUnlocked) { sound(100, 50); return; }
+        sound(500, 500, 0.1); showLayer('home');
     }
 
     function showLayer(id) {
         document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
         document.getElementById('layer-' + id).classList.add('active');
     }
+
+    setInterval(() => {
+        const d = new Date();
+        document.getElementById('clock').innerText = d.getHours() + ":" + String(d.getMinutes()).padStart(2, '0');
+    }, 1000);
 </script>
 </body>
 </html>
