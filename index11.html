@@ -3,330 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTech B Fold 1 - YouWeb Wiki</title>
+    <title>YouTech B Fold 1 - YouWeb Fixed</title>
     <style>
-        :root { --yt-red: #FF0000; --ios-blue: #007AFF; --touch-green: #34C759; --led-white: #FFFFFF; --led-red: #FF3B30; --key-bg: rgba(255,255,255,0.1); }
-        body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; -webkit-tap-highlight-color: transparent; }
+        :root { --yt-red: #FF0000; --ios-blue: #007AFF; --touch-green: #34C759; --key-bg: rgba(255,255,255,0.15); }
+        body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; }
 
-        /* --- CHASSIS PRINCIPAL --- */
+        /* --- CHASSIS --- */
         .phone-frame { 
             background: #1a1a1a; border-radius: 40px; border: 4px solid #333; position: relative; 
-            height: 85vh; width: 300px; 
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; box-shadow: 0 0 60px rgba(0,0,0,1);
-            z-index: 10;
+            height: 85vh; width: 300px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; box-shadow: 0 0 60px rgba(0,0,0,1); z-index: 10;
         }
         .phone-frame.unfolded { width: 620px; }
 
-        /* --- BOUTONS PHYSIQUES --- */
-        .btn-top { position: absolute; left: 50%; top: -10px; width: 70px; height: 10px; background: #444; border-radius: 5px 5px 0 0; transform: translateX(-50%); cursor: pointer; z-index: 9999; border: 1px solid #222; }
-        .btn-fold { position: absolute; right: -10px; top: 40%; width: 12px; height: 90px; background: var(--yt-red); border-radius: 0 8px 8px 0; cursor: pointer; z-index: 9999; box-shadow: 2px 0 15px rgba(255,0,0,0.4); border: 1px solid #700; }
+        /* --- BOUTONS --- */
+        .btn-top { position: absolute; left: 50%; top: -10px; width: 70px; height: 10px; background: #444; border-radius: 5px 5px 0 0; transform: translateX(-50%); cursor: pointer; z-index: 9999; }
+        .btn-fold { position: absolute; right: -10px; top: 40%; width: 12px; height: 90px; background: var(--yt-red); border-radius: 0 8px 8px 0; cursor: pointer; z-index: 9999; }
 
-        /* --- POP-UP CAMERA --- */
-        .camera-popup {
-            position: absolute; left: 75%; top: 0px; width: 45px; height: 12px; background: #111;
-            border-radius: 6px 6px 0 0; border: 2px solid #333; border-bottom: none;
-            z-index: 5; transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; align-items: center; justify-content: space-around;
-        }
-        .camera-popup.deployed { top: -14px; }
-        .cam-lens { width: 7px; height: 7px; background: #000; border-radius: 50%; border: 1px solid #444; }
-        .status-led { width: 5px; height: 5px; border-radius: 50%; transition: 0.3s; }
-        .led-white { background: var(--led-white); box-shadow: 0 0 8px var(--led-white); }
-        .led-red { background: var(--led-red); box-shadow: 0 0 8px var(--led-red); animation: blink 0.5s infinite; }
-
-        /* --- AFFICHAGE PRINCIPAL --- */
-        .display-area { 
-            position: absolute; inset: 10px; background: #000; border-radius: 32px; 
-            overflow: hidden; display: flex; width: calc(100% - 20px); height: calc(100% - 20px);
-        }
-        .layer { position: absolute; inset: 0; display: none; flex-direction: column; box-sizing: border-box; background: #000; z-index: 20; overflow: hidden; }
+        /* --- ECRAN --- */
+        .display-area { position: absolute; inset: 10px; background: #000; border-radius: 32px; overflow: hidden; display: flex; width: calc(100% - 20px); height: calc(100% - 20px); }
+        .layer { position: absolute; inset: 0; display: none; flex-direction: column; background: #000; z-index: 20; }
         .active { display: flex !important; }
 
-        .wallpaper { position: absolute; inset: 0; background: radial-gradient(circle at center, #232526, #000); z-index: -1; }
-
-        /* --- UI ELEMENTS (LOCK, HOME) --- */
-        .lock-screen { align-items: center; justify-content: center; text-align: center; }
-        .time { font-size: 55px; font-weight: 200; transition: 0.6s; margin-bottom: 10px; }
-        .unfolded .time { font-size: 100px; }
-
-        .face-id-btn { width: 85px; height: 85px; border-radius: 50%; border: 2px solid #333; margin: 20px auto; overflow: hidden; position: relative; cursor: pointer; background: #0a0a0a; display: flex; align-items: center; justify-content: center; }
-        #v-stream { width: 100%; height: 100%; object-fit: cover; display: none; transform: scaleX(-1); }
-
-        .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 40px; transition: 0.5s; margin-top: 30px; }
-        .unfolded .app-grid { grid-template-columns: repeat(4, 1fr); gap: 40px; padding: 60px; }
-        .app-icon { width: 65px; height: 65px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; transition: 0.2s; }
-        .app-icon:active { transform: scale(0.9); }
-
-        /* --- TASKBAR & HOME BAR --- */
-        .taskbar {
-            position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%);
-            width: 70%; height: 55px; background: rgba(255,255,255,0.08); backdrop-filter: blur(25px);
-            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: space-around;
-            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 5000;
-        }
-        .unfolded .taskbar { bottom: 20px; }
-        .task-icon { font-size: 22px; cursor: pointer; }
+        /* --- YOUWEB UI FIXED --- */
+        #l-web { background: #fff; color: #000; }
+        .web-header { background: #f8f8f8; padding: 10px; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 5px; }
+        .web-top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .web-url-bar { background: #eee; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; border: 1px solid #ccc; flex: 1; margin-right: 10px; }
+        .web-url-bar input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; color: #333; }
         
-        .home-bar { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); width: 80px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; cursor: pointer; z-index: 3000; }
-        .unfolded .home-bar { opacity: 0; pointer-events: none; }
-
-        /* --- APPLICATION YOUWEB --- */
-        #l-web { background: #f4f4f4; color: black; flex-direction: column; padding: 0; }
-        .web-header { background: white; padding: 10px; border-bottom: 1px solid #ddd; display: flex; gap: 10px; align-items: center; z-index: 30; }
-        .web-title { font-weight: bold; font-size: 14px; color: var(--ios-blue); }
-        .web-bar { flex: 1; height: 35px; background: #eee; border-radius: 10px; display: flex; align-items: center; padding: 0 10px; border: 1px solid #ccc; cursor: text; }
-        .web-bar input { border: none; background: transparent; width: 100%; height: 100%; outline: none; font-size: 14px; }
-        .web-view { flex: 1; background: white; width: 100%; height: 100%; border: none; }
-
-        /* --- CLAVIER ON-SCREEN ADAPTATIF --- */
+        .web-content { flex: 1; padding: 20px; overflow-y: auto; text-align: left; background: white; }
+        .wiki-card { border-left: 4px solid var(--ios-blue); padding-left: 15px; margin-top: 10px; }
+        .wiki-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        
+        /* --- CLAVIER FIXED --- */
         .keyboard { 
             position: absolute; bottom: -100%; left: 0; width: 100%; 
-            background: rgba(20,20,20,0.95); backdrop-filter: blur(20px);
-            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000; padding: 10px; box-sizing: border-box;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            background: rgba(25,25,25,0.98); backdrop-filter: blur(20px);
+            transition: bottom 0.4s ease; z-index: 1000; padding: 10px; box-sizing: border-box;
         }
         .keyboard.visible { bottom: 0; }
-        
-        /* Layout Mobile (Plié) */
-        .key-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 5px; }
-        .key { flex: 1; max-width: 35px; height: 40px; background: var(--key-bg); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; user-select: none; }
-        .key:active { background: rgba(255,255,255,0.3); }
-        .key.special { background: rgba(255,255,255,0.2); font-size: 12px; }
-        .key.space { flex: 4; max-width: none; }
-        .key.enter { background: var(--ios-blue); max-width: none; flex: 2; font-size: 18px; }
+        .key-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 6px; }
+        .key { flex: 1; height: 42px; background: var(--key-bg); border-radius: 6px; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
+        .key:active { background: #555; }
+        .key.space { flex: 5; }
+        .key.enter { background: var(--ios-blue); flex: 2; }
 
-        /* Layout Full (Déplié) */
-        .unfolded .key { max-width: none; height: 50px; font-size: 18px; }
-        .unfolded .key-row { gap: 8px; margin-bottom: 8px; }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        /* --- DOCK & HOME --- */
+        .taskbar { position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); width: 70%; height: 50px; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border-radius: 15px; display: flex; align-items: center; justify-content: space-around; transition: 0.5s; z-index: 500; }
+        .unfolded .taskbar { bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="phone-frame" id="frame">
-    <div class="btn-top" onclick="hwPower()" title="Power Button"></div>
-    <div class="btn-fold" onclick="hwFold()" title="Mechanical Fold"></div>
-
-    <div class="camera-popup" id="hw-cam">
-        <div class="cam-lens"></div>
-        <div id="led" class="status-led"></div>
-    </div>
+    <div class="btn-top" onclick="hwPower()"></div>
+    <div class="btn-fold" onclick="hwFold()"></div>
 
     <div class="display-area">
-        <div class="wallpaper"></div>
-        
         <div id="l-off" class="layer active"></div>
 
         <div id="l-boot" class="layer" style="justify-content:center; align-items:center;">
-            <div style="font-weight:700; letter-spacing:5px;">YOUTECH</div>
-            <div style="color:var(--yt-red); font-size:12px; margin-bottom:20px;">B FOLD 1</div>
-            <div style="width:120px; height:2px; background:#222;"><div id="boot-p" style="width:0%; height:100%; background:white; transition: 3.5s linear;"></div></div>
+            <div style="letter-spacing:5px; font-weight:bold;">YOUTECH</div>
+            <div style="color:red; font-size:12px;">B FOLD 1</div>
         </div>
 
-        <div id="l-lock" class="layer lock-screen">
-            <div class="time" id="clock">--:--</div>
-            <div class="face-id-btn" onclick="startBiometrics()">
-                <video id="v-stream" autoplay playsinline muted></video>
-                <span id="face-icon" style="font-size:35px;">👤</span>
-            </div>
-            <p id="status-txt" style="font-size:11px; opacity:0.5;">Cliquer pour Face ID</p>
+        <div id="l-lock" class="layer" style="justify-content:center; align-items:center;">
+            <h1 id="clock" style="font-size:60px; font-weight:200;">12:00</h1>
+            <div style="width:70px;height:70px;border:2px solid #444;border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer;" onclick="unlock()">👤</div>
+            <p style="font-size:12px;opacity:0.5;margin-top:10px;">Face ID</p>
         </div>
 
-        <div id="l-home" class="layer">
-            <div style="text-align:center; padding:15px; font-size:9px; letter-spacing:4px; opacity:0.4;">B FOLD 1 OS</div>
-            <div class="app-grid">
-                <div class="app-icon" style="background:var(--yt-red)">🎬</div>
-                <div class="app-icon">📸</div>
-                <div class="app-icon">🎼</div>
-                <div class="app-icon" onclick="openWeb()">🌐</div>
-                <div class="app-icon" style="background:#333" onclick="location.reload()">♻️</div>
+        <div id="l-home" class="layer" style="padding:40px;">
+            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px;">
+                <div style="width:60px;height:60px;background:var(--ios-blue);border-radius:15px;display:flex;justify-content:center;align-items:center;font-size:30px;cursor:pointer;" onclick="openWeb()">🌐</div>
+                <div style="width:60px;height:60px;background:#333;border-radius:15px;display:flex;justify-content:center;align-items:center;font-size:30px;">📸</div>
             </div>
         </div>
 
         <div id="l-web" class="layer">
             <div class="web-header">
-                <div class="web-title">YouWeb</div>
-                <div class="web-bar">
-                    <input type="text" id="web-input" placeholder="Rechercher sur Wiki..." onclick="showKeyboard()">
+                <div class="web-top-row">
+                    <span style="font-weight:bold; color:var(--ios-blue);">YouWeb</span>
+                    <button onclick="goHome()" style="border:none; background:none; font-size:18px;">✕</button>
                 </div>
-                <div class="task-icon" onclick="goHome()">✕</div>
+                <div class="web-url-bar">
+                    <input type="text" id="web-input" placeholder="Rechercher sur Wikipédia..." readonly onclick="showKB()">
+                </div>
             </div>
-            <iframe id="web-view" class="web-view" src="about:blank"></iframe>
+            <div class="web-content" id="web-res">
+                <div style="color:#888; text-align:center; margin-top:50px;">
+                    <p style="font-size:40px;">🌐</p>
+                    <p>Entrez un sujet pour explorer Wikipédia</p>
+                </div>
+            </div>
         </div>
 
-        <div class="taskbar">
-            <div class="task-icon" onclick="goHome()">🏠</div>
-            <div class="task-icon" onclick="openWeb()">🌐</div>
-            <div class="task-icon" style="opacity:0.5;">💬</div>
-            <div class="task-icon" style="opacity:0.5;">📁</div>
-        </div>
-
-        <div class="home-bar" onclick="goHome()"></div>
-
-        <div class="keyboard" id="keyboard">
-            <div class="key-row" id="kb-row-1"></div>
-            <div class="key-row" id="kb-row-2"></div>
-            <div class="key-row" id="kb-row-3"></div>
+        <div class="keyboard" id="kb">
+            <div class="key-row" id="row1"></div>
+            <div class="key-row" id="row2"></div>
             <div class="key-row">
-                <div class="key special" onclick="hideKeyboard()">?123</div>
-                <div class="key space" onclick="keyPress(' ')">Espace</div>
-                <div class="key special" onclick="keyPress('backspace')">⌫</div>
-                <div class="key enter" onclick="webSearch()">🔍</div>
+                <div class="key" onclick="type(' ')">ESPACE</div>
+                <div class="key" onclick="del()">⌫</div>
+                <div class="key enter" onclick="search()">🔍</div>
             </div>
         </div>
+
+        <div class="taskbar"><span onclick="goHome()">🏠</span><span>📞</span><span onclick="openWeb()">🌐</span></div>
     </div>
 </div>
 
 <script>
-    let sys = { powered: false, unfolded: false, unlocked: false, kbVisible: false };
-    const audio = new (window.AudioContext || window.webkitAudioContext)();
-
-    const keys = [
-        ['Q','W','E','R','T','Y','U','I','O','P'],
-        ['A','S','D','F','G','H','J','K','L'],
-        ['Z','X','C','V','B','N','M']
-    ];
-
-    function play(f1, f2, d=0.3) {
-        if (!sys.powered) return;
-        const o = audio.createOscillator(), g = audio.createGain();
-        o.connect(g); g.connect(audio.destination);
-        o.frequency.setValueAtTime(f1, audio.currentTime);
-        o.frequency.exponentialRampToValueAtTime(f2, audio.currentTime + d);
-        g.gain.setValueAtTime(0.05, audio.currentTime);
-        g.gain.linearRampToValueAtTime(0, audio.currentTime + d);
-        o.start(); o.stop(audio.currentTime + d);
-    }
-
-    // GESTION CLAVIER DYNAMIQUE
-    function initKeyboard() {
-        keys.forEach((row, i) => {
-            const rowEl = document.getElementById(`kb-row-${i+1}`);
-            row.forEach(key => {
-                const keyEl = document.createElement('div');
-                keyEl.className = 'key';
-                keyEl.innerText = key;
-                keyEl.onclick = () => keyPress(key);
-                rowEl.appendChild(keyEl);
-            });
-        });
-    }
-
-    function keyPress(key) {
-        const input = document.getElementById('web-input');
-        if (key === 'backspace') {
-            input.value = input.value.slice(0, -1);
-        } else {
-            input.value += key;
-        }
-        play(600, 600, 0.05); // Son de touche
-    }
-
-    function showKeyboard() {
-        if(!sys.powered || !sys.unlocked) return;
-        document.getElementById('keyboard').classList.add('visible');
-        sys.kbVisible = true;
-    }
-
-    function hideKeyboard() {
-        document.getElementById('keyboard').classList.remove('visible');
-        sys.kbVisible = false;
-    }
-
-    // BOUTONS PHYSIQUES
+    let state = { power: false, fold: false, unlocked: false };
+    
     function hwPower() {
-        if(!sys.powered) {
-            sys.powered = true;
-            render('boot');
-            play(200, 600, 0.5);
-            document.getElementById('boot-p').style.width = "100%";
-            setTimeout(() => render('lock'), 3800);
-        } else {
-            location.reload();
-        }
+        if(!state.power) {
+            state.power = true; render('boot');
+            setTimeout(() => render('lock'), 2000);
+        } else { location.reload(); }
     }
 
     function hwFold() {
-        const frame = document.getElementById('frame');
-        sys.unfolded = !sys.unfolded;
-        play(sys.unfolded ? 300 : 500, sys.unfolded ? 600 : 200, 0.4);
-        frame.classList.toggle('unfolded', sys.unfolded);
+        state.fold = !state.fold;
+        document.getElementById('frame').classList.toggle('unfolded', state.fold);
     }
 
-    // FACE ID & BIOMETRICS
-    async function startBiometrics() {
-        if(!sys.powered || sys.unlocked) return;
-        const led = document.getElementById('led');
-        const pop = document.getElementById('hw-cam');
-        pop.classList.add('deployed');
-        
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            led.className = "status-led led-white";
-            play(800, 800, 0.1);
-
-            setTimeout(() => {
-                stream.getTracks().forEach(t => t.stop());
-                document.getElementById('face-icon').innerText = "✅";
-                led.className = "status-led";
-                pop.classList.remove('deployed');
-                sys.unlocked = true;
-                play(800, 1200, 0.2);
-                document.getElementById('status-txt').innerText = "Accès Autorisé";
-            }, 2000);
-        } catch(e) {
-            led.className = "status-led led-red";
-            play(150, 50, 0.5);
-            setTimeout(() => {
-                pop.classList.remove('deployed');
-                led.className = "status-led";
-                sys.unlocked = true; // Fail-safe pour le test
-                document.getElementById('status-txt').innerText = "Mode Manuel";
-            }, 2000);
-        }
-    }
-
-    // YOUWEB & RECHERCHE
-    function openWeb() {
-        if(!sys.unlocked) return;
-        render('web');
-        play(400, 600, 0.1);
-    }
-
-    function webSearch() {
-        const query = document.getElementById('web-input').value;
-        const view = document.getElementById('web-view');
-        if(query) {
-            // URL de recherche Wikipedia mobile
-            const url = `https://fr.m.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(query)}`;
-            view.src = url;
-            hideKeyboard();
-            play(800, 1000, 0.1);
-        }
-    }
-
-    function goHome() {
-        if(sys.unlocked) {
-            render('home');
-            hideKeyboard();
-            play(440, 440, 0.1);
-        }
-    }
-
+    function unlock() { state.unlocked = true; render('home'); }
     function render(id) {
         document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
         document.getElementById('l-' + id).classList.add('active');
+        hideKB();
     }
 
-    // Initialisation
-    initKeyboard();
+    // WEB LOGIC FIXED
+    function openWeb() { if(state.unlocked) render('web'); }
+    
+    function showKB() { document.getElementById('kb').classList.add('visible'); }
+    function hideKB() { document.getElementById('kb').classList.remove('visible'); }
+
+    function type(char) { document.getElementById('web-input').value += char; }
+    function del() { 
+        let v = document.getElementById('web-input').value;
+        document.getElementById('web-input').value = v.slice(0, -1);
+    }
+
+    function search() {
+        let q = document.getElementById('web-input').value;
+        if(!q) return;
+        hideKB();
+        let res = document.getElementById('web-res');
+        res.innerHTML = `<div class="wiki-card"><div class="wiki-title">${q}</div>
+                         <p>Chargement des données Wikipédia pour "${q}"...</p>
+                         <p style="font-size:13px; color:#666;">Note : YouWeb simule l'accès aux données API pour éviter les erreurs de sécurité iframe.</p>
+                         <button onclick="window.open('https://fr.wikipedia.org/wiki/${q}', '_blank')" 
+                                 style="background:var(--ios-blue); color:white; border:none; padding:10px; border-radius:5px; margin-top:10px;">
+                                 Ouvrir l'article complet ↗
+                         </button></div>`;
+    }
+
+    // Init Clavier
+    const chars = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
+    chars.forEach((row, i) => {
+        let r = document.getElementById('row' + (i+1));
+        if(r) [...row].forEach(c => {
+            let k = document.createElement('div');
+            k.className = 'key'; k.innerText = c;
+            k.onclick = () => type(c); r.appendChild(k);
+        });
+    });
+
     setInterval(() => {
-        if(!sys.powered) return;
-        const d = new Date();
+        let d = new Date();
         document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0');
     }, 1000);
 </script>
