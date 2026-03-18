@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTech B Fold 1 - Final OS</title>
+    <title>YouTech B Fold 1 - YouVideos Edition</title>
     <style>
-        :root { --yt-red: #FF0000; --ios-blue: #007AFF; --glass: rgba(255,255,255,0.1); }
-        body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; user-select: none; }
+        :root { --yt-red: #FF0000; --ios-blue: #007AFF; --studio-purple: #a100ff; }
+        body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; }
 
         /* --- CHASSIS --- */
         .phone-frame { 
@@ -16,124 +16,107 @@
         }
         .phone-frame.unfolded { width: 620px; }
 
-        /* --- BOUTONS PHYSIQUES --- */
-        .btn-top { position: absolute; left: 50%; top: -10px; width: 70px; height: 10px; background: #444; border-radius: 5px 5px 0 0; transform: translateX(-50%); cursor: pointer; z-index: 9999; border: 1px solid #222; }
-        .btn-top:active { background: #666; }
-        
+        /* --- BOUTONS --- */
+        .btn-top { position: absolute; left: 50%; top: -10px; width: 70px; height: 10px; background: #444; border-radius: 5px 5px 0 0; transform: translateX(-50%); cursor: pointer; z-index: 9999; }
         .btn-fold { position: absolute; right: -10px; top: 40%; width: 12px; height: 90px; background: var(--yt-red); border-radius: 0 8px 8px 0; cursor: pointer; z-index: 9999; }
 
         /* --- DISPLAY --- */
         .display-area { position: absolute; inset: 10px; background: #000; border-radius: 32px; overflow: hidden; display: flex; flex-direction: column; width: calc(100% - 20px); height: calc(100% - 20px); }
-        
-        .status-bar { height: 25px; padding: 5px 20px 0; display: flex; justify-content: space-between; font-size: 11px; z-index: 5000; background: rgba(0,0,0,0.5); visibility: hidden; }
-        
-        .layer { position: absolute; inset: 0; top: 0; display: none; flex-direction: column; background: #000; z-index: 20; box-sizing: border-box; }
+        .status-bar { height: 25px; padding: 5px 20px 0; display: flex; justify-content: space-between; font-size: 11px; z-index: 5000; background: rgba(0,0,0,0.5); }
+        .layer { position: absolute; inset: 0; top: 25px; display: none; flex-direction: column; background: #000; z-index: 20; box-sizing: border-box; }
         .active { display: flex !important; }
 
-        /* --- POWER MENU (ÉCRAN D'ARRÊT) --- */
-        .power-menu { 
-            position: absolute; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
-            z-index: 8000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
-        }
-        .power-btn { width: 200px; padding: 15px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn-shutdown { background: #ff3b30; color: white; }
-        .btn-restart { background: #333; color: white; }
+        /* --- YOUVIDEOS APP --- */
+        #l-videos { background: #000; padding: 15px; }
+        .cam-preview { width: 100%; height: 180px; background: #222; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #444; }
+        #cam-feed { width: 100%; height: 100%; object-fit: cover; display: none; transform: scaleX(-1); }
+        .rec-dot { position: absolute; top: 10px; right: 10px; width: 10px; height: 10px; background: red; border-radius: 50%; animation: blink 1s infinite; display: none; }
+        
+        .vid-tools { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .input-box { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 10px; color: white; width: 100%; box-sizing: border-box; outline: none; }
+        .btn-vid { padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; color: white; }
+        .btn-red { background: var(--yt-red); }
+        .btn-purple { background: var(--studio-purple); }
 
-        /* --- BOUTON HOME (CERCLE) --- */
-        .home-button-container { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 7000; display: none; }
-        .home-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; }
-        .home-circle:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
-
-        /* --- APPS --- */
-        #l-home { padding-top: 30px; }
+        /* --- NAVIGATION & HOME --- */
         .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px; }
         .unfolded .app-grid { grid-template-columns: repeat(4, 1fr); }
-        .app-icon { width: 60px; height: 60px; border-radius: 15px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; background: var(--glass); }
+        .app-icon { width: 60px; height: 60px; border-radius: 18px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; background: rgba(255,255,255,0.1); }
+        
+        .home-btn { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 45px; height: 45px; border-radius: 50%; border: 2px solid #333; cursor: pointer; z-index: 7000; background: rgba(0,0,0,0.5); }
 
-        /* --- WEB --- */
-        #web-iframe { width: 100%; height: calc(100% - 100px); border: none; background: white; }
+        /* --- YOUWEB --- */
+        #web-frame { flex: 1; border: none; background: white; }
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
 <div class="phone-frame" id="frame">
-    <div class="btn-top" onclick="togglePowerMenu()"></div>
+    <div class="btn-top" onclick="hwPower()"></div>
     <div class="btn-fold" onclick="hwFold()"></div>
 
-    <div class="power-menu" id="p-menu">
-        <h2 style="margin-bottom:20px;">YouTech OS</h2>
-        <button class="power-btn btn-shutdown" onclick="sysAction('shutdown')">Éteindre ⏻</button>
-        <button class="power-btn btn-restart" onclick="sysAction('restart')">Redémarrer ↻</button>
-        <p style="cursor:pointer; margin-top:10px;" onclick="togglePowerMenu()">Annuler</p>
-    </div>
-
     <div class="display-area">
-        <div class="status-bar" id="sb">
-            <span id="time">14:35</span>
-            <span>📶 🔋 85%</span>
+        <div class="status-bar" id="sb" style="visibility:hidden">
+            <span id="time">12:00</span>
+            <span>📶 🔋 98%</span>
         </div>
 
-        <div id="l-off" class="layer active" style="background:black;"></div>
+        <div id="l-off" class="layer active" style="top:0; background:black;"></div>
+        <div id="l-boot" class="layer" style="justify-content:center; align-items:center;"><b>YOUTECH</b></div>
         
-        <div id="l-boot" class="layer" style="justify-content:center; align-items:center;">
-            <b>YOUTECH</b><br><span style="color:red">B FOLD 1</span>
-        </div>
-
         <div id="l-lock" class="layer" style="justify-content:center; align-items:center;">
-            <div onclick="unlock()" style="font-size:60px; cursor:pointer;">🔓</div>
-            <p>Déverrouiller</p>
+            <div onclick="unlock()" style="font-size:50px; cursor:pointer;">🔓</div>
         </div>
 
         <div id="l-home" class="layer">
             <div class="app-grid">
                 <div class="app-icon" style="background:var(--ios-blue)" onclick="render('web')">🌐</div>
-                <div class="app-icon" style="background:var(--yt-red)" onclick="render('studio')">🎬</div>
+                <div class="app-icon" style="background:var(--yt-red)" onclick="openVideos()">🎬</div>
                 <div class="app-icon">📸</div>
-                <div class="app-icon" style="background:#333">⚙️</div>
+                <div class="app-icon">⚙️</div>
             </div>
+        </div>
+
+        <div id="l-videos" class="layer">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <b>YouVideos Creator</b>
+                <span style="color:red; font-size:12px;" id="status-msg">STUDIO READY</span>
+            </div>
+            
+            <div class="cam-preview">
+                <video id="cam-feed" autoplay playsinline muted></video>
+                <div id="rec-dot" class="rec-dot"></div>
+                <div id="cam-placeholder" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#555;">Caméra non activée</div>
+            </div>
+
+            <div class="vid-tools">
+                <button class="btn-vid btn-red" onclick="startCamera()">Activer Caméra 📸</button>
+                <input type="text" id="vid-url" class="input-box" placeholder="URL Vidéo à télécharger...">
+                <button class="btn-vid btn-purple" onclick="actionVid('Telechargement')">Download Video 📥</button>
+            </div>
+            <div id="progress" style="height:3px; background:#333; margin-top:10px; display:none;"><div id="p-bar" style="height:100%; background:var(--studio-purple); width:0%; transition:3s linear;"></div></div>
         </div>
 
         <div id="l-web" class="layer">
-            <div style="background:#f1f1f1; color:black; padding:10px; display:flex; gap:10px;">
-                <input type="text" id="web-url" value="Wikipedia" style="flex:1; border-radius:5px; border:1px solid #ccc; padding:3px 10px;">
-                <button onclick="webGo()" style="background:var(--ios-blue); color:white; border:none; border-radius:5px; padding:0 10px;">Aller</button>
+            <div style="background:#eee; padding:5px; display:flex; gap:5px;">
+                <input type="text" id="web-q" value="Wikipedia" style="flex:1; border:none; padding:5px; border-radius:5px;">
+                <button onclick="webGo()" style="border:none; background:var(--ios-blue); color:white; border-radius:5px; padding:0 10px;">Go</button>
             </div>
-            <iframe id="web-iframe" src="about:blank"></iframe>
+            <iframe id="web-frame" src="about:blank"></iframe>
         </div>
 
-        <div class="home-button-container" id="home-container">
-            <div class="home-circle" onclick="goHome()"></div>
-        </div>
+        <div class="home-btn" id="h-btn" style="display:none;" onclick="render('home')"></div>
     </div>
 </div>
 
 <script>
-    let sys = { power: false, unlocked: false };
+    let sys = { power: false, unlocked: false, camStream: null };
 
-    function togglePowerMenu() {
-        if(!sys.power) { 
-            // Si éteint, on lance le boot
-            sys.power = true; 
-            render('boot'); 
-            setTimeout(() => render('lock'), 2500); 
-        } else {
-            // Si allumé, on affiche le menu d'extinction
-            const menu = document.getElementById('p-menu');
-            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
-        }
-    }
-
-    function sysAction(action) {
-        if(action === 'shutdown') {
-            document.getElementById('p-menu').style.display = 'none';
-            document.getElementById('home-container').style.display = 'none';
-            document.getElementById('sb').style.visibility = 'hidden';
-            sys.power = false;
-            sys.unlocked = false;
-            render('off');
-        } else {
-            location.reload();
-        }
+    function hwPower() {
+        if(!sys.power) { sys.power = true; render('boot'); setTimeout(()=>render('lock'), 2000); }
+        else { location.reload(); }
     }
 
     function hwFold() { document.getElementById('frame').classList.toggle('unfolded'); }
@@ -141,25 +124,57 @@
     function unlock() { 
         sys.unlocked = true; 
         render('home'); 
-        document.getElementById('sb').style.visibility = 'visible';
-        document.getElementById('home-container').style.display = 'block';
-    }
-
-    function goHome() {
-        if(sys.unlocked) {
-            render('home');
-            document.getElementById('p-menu').style.display = 'none';
-        }
+        document.getElementById('sb').style.visibility='visible';
+        document.getElementById('h-btn').style.display='block';
     }
 
     function render(id) {
         document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
         document.getElementById('l-' + id).classList.add('active');
+        stopCamera();
     }
 
+    // YOUVIDEOS LOGIC
+    function openVideos() { render('videos'); }
+
+    async function startCamera() {
+        const video = document.getElementById('cam-feed');
+        const placeholder = document.getElementById('cam-placeholder');
+        try {
+            sys.camStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = sys.camStream;
+            video.style.display = 'block';
+            placeholder.style.display = 'none';
+            document.getElementById('rec-dot').style.display = 'block';
+            document.getElementById('status-msg').innerText = "LIVE REC";
+        } catch(e) {
+            alert("Erreur Caméra : " + e.message);
+        }
+    }
+
+    function stopCamera() {
+        if(sys.camStream) {
+            sys.camStream.getTracks().forEach(t => t.stop());
+            document.getElementById('cam-feed').style.display = 'none';
+            document.getElementById('cam-placeholder').style.display = 'flex';
+            document.getElementById('rec-dot').style.display = 'none';
+        }
+    }
+
+    function actionVid(type) {
+        document.getElementById('progress').style.display = 'block';
+        document.getElementById('p-bar').style.width = '100%';
+        setTimeout(() => {
+            alert(type + " terminé !");
+            document.getElementById('progress').style.display = 'none';
+            document.getElementById('p-bar').style.width = '0%';
+        }, 3200);
+    }
+
+    // WEB LOGIC
     function webGo() {
-        let q = document.getElementById('web-url').value;
-        document.getElementById('web-iframe').src = `https://fr.m.wikipedia.org/wiki/${encodeURIComponent(q)}`;
+        let q = document.getElementById('web-q').value;
+        document.getElementById('web-frame').src = `https://fr.m.wikipedia.org/wiki/${encodeURIComponent(q)}`;
     }
 
     setInterval(() => {
