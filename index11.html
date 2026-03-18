@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTech B Fold 1 - YouWeb Fixed</title>
+    <title>YouTech B Fold 1 - Final OS</title>
     <style>
-        :root { --yt-red: #FF0000; --ios-blue: #007AFF; --touch-green: #34C759; --key-bg: rgba(255,255,255,0.15); }
-        body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; }
+        :root { --yt-red: #FF0000; --ios-blue: #007AFF; --glass: rgba(255,255,255,0.1); }
+        body { margin: 0; background: #050505; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; user-select: none; }
 
         /* --- CHASSIS --- */
         .phone-frame { 
@@ -16,165 +16,155 @@
         }
         .phone-frame.unfolded { width: 620px; }
 
-        /* --- BOUTONS --- */
-        .btn-top { position: absolute; left: 50%; top: -10px; width: 70px; height: 10px; background: #444; border-radius: 5px 5px 0 0; transform: translateX(-50%); cursor: pointer; z-index: 9999; }
+        /* --- BOUTONS PHYSIQUES --- */
+        .btn-top { position: absolute; left: 50%; top: -10px; width: 70px; height: 10px; background: #444; border-radius: 5px 5px 0 0; transform: translateX(-50%); cursor: pointer; z-index: 9999; border: 1px solid #222; }
+        .btn-top:active { background: #666; }
+        
         .btn-fold { position: absolute; right: -10px; top: 40%; width: 12px; height: 90px; background: var(--yt-red); border-radius: 0 8px 8px 0; cursor: pointer; z-index: 9999; }
 
-        /* --- ECRAN --- */
-        .display-area { position: absolute; inset: 10px; background: #000; border-radius: 32px; overflow: hidden; display: flex; width: calc(100% - 20px); height: calc(100% - 20px); }
-        .layer { position: absolute; inset: 0; display: none; flex-direction: column; background: #000; z-index: 20; }
+        /* --- DISPLAY --- */
+        .display-area { position: absolute; inset: 10px; background: #000; border-radius: 32px; overflow: hidden; display: flex; flex-direction: column; width: calc(100% - 20px); height: calc(100% - 20px); }
+        
+        .status-bar { height: 25px; padding: 5px 20px 0; display: flex; justify-content: space-between; font-size: 11px; z-index: 5000; background: rgba(0,0,0,0.5); visibility: hidden; }
+        
+        .layer { position: absolute; inset: 0; top: 0; display: none; flex-direction: column; background: #000; z-index: 20; box-sizing: border-box; }
         .active { display: flex !important; }
 
-        /* --- YOUWEB UI FIXED --- */
-        #l-web { background: #fff; color: #000; }
-        .web-header { background: #f8f8f8; padding: 10px; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 5px; }
-        .web-top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .web-url-bar { background: #eee; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; border: 1px solid #ccc; flex: 1; margin-right: 10px; }
-        .web-url-bar input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; color: #333; }
-        
-        .web-content { flex: 1; padding: 20px; overflow-y: auto; text-align: left; background: white; }
-        .wiki-card { border-left: 4px solid var(--ios-blue); padding-left: 15px; margin-top: 10px; }
-        .wiki-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-        
-        /* --- CLAVIER FIXED --- */
-        .keyboard { 
-            position: absolute; bottom: -100%; left: 0; width: 100%; 
-            background: rgba(25,25,25,0.98); backdrop-filter: blur(20px);
-            transition: bottom 0.4s ease; z-index: 1000; padding: 10px; box-sizing: border-box;
+        /* --- POWER MENU (ÉCRAN D'ARRÊT) --- */
+        .power-menu { 
+            position: absolute; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
+            z-index: 8000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
         }
-        .keyboard.visible { bottom: 0; }
-        .key-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 6px; }
-        .key { flex: 1; height: 42px; background: var(--key-bg); border-radius: 6px; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
-        .key:active { background: #555; }
-        .key.space { flex: 5; }
-        .key.enter { background: var(--ios-blue); flex: 2; }
+        .power-btn { width: 200px; padding: 15px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-shutdown { background: #ff3b30; color: white; }
+        .btn-restart { background: #333; color: white; }
 
-        /* --- DOCK & HOME --- */
-        .taskbar { position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); width: 70%; height: 50px; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border-radius: 15px; display: flex; align-items: center; justify-content: space-around; transition: 0.5s; z-index: 500; }
-        .unfolded .taskbar { bottom: 20px; }
+        /* --- BOUTON HOME (CERCLE) --- */
+        .home-button-container { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 7000; display: none; }
+        .home-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; }
+        .home-circle:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+
+        /* --- APPS --- */
+        #l-home { padding-top: 30px; }
+        .app-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px; }
+        .unfolded .app-grid { grid-template-columns: repeat(4, 1fr); }
+        .app-icon { width: 60px; height: 60px; border-radius: 15px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; background: var(--glass); }
+
+        /* --- WEB --- */
+        #web-iframe { width: 100%; height: calc(100% - 100px); border: none; background: white; }
     </style>
 </head>
 <body>
 
 <div class="phone-frame" id="frame">
-    <div class="btn-top" onclick="hwPower()"></div>
+    <div class="btn-top" onclick="togglePowerMenu()"></div>
     <div class="btn-fold" onclick="hwFold()"></div>
 
-    <div class="display-area">
-        <div id="l-off" class="layer active"></div>
+    <div class="power-menu" id="p-menu">
+        <h2 style="margin-bottom:20px;">YouTech OS</h2>
+        <button class="power-btn btn-shutdown" onclick="sysAction('shutdown')">Éteindre ⏻</button>
+        <button class="power-btn btn-restart" onclick="sysAction('restart')">Redémarrer ↻</button>
+        <p style="cursor:pointer; margin-top:10px;" onclick="togglePowerMenu()">Annuler</p>
+    </div>
 
+    <div class="display-area">
+        <div class="status-bar" id="sb">
+            <span id="time">14:35</span>
+            <span>📶 🔋 85%</span>
+        </div>
+
+        <div id="l-off" class="layer active" style="background:black;"></div>
+        
         <div id="l-boot" class="layer" style="justify-content:center; align-items:center;">
-            <div style="letter-spacing:5px; font-weight:bold;">YOUTECH</div>
-            <div style="color:red; font-size:12px;">B FOLD 1</div>
+            <b>YOUTECH</b><br><span style="color:red">B FOLD 1</span>
         </div>
 
         <div id="l-lock" class="layer" style="justify-content:center; align-items:center;">
-            <h1 id="clock" style="font-size:60px; font-weight:200;">12:00</h1>
-            <div style="width:70px;height:70px;border:2px solid #444;border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer;" onclick="unlock()">👤</div>
-            <p style="font-size:12px;opacity:0.5;margin-top:10px;">Face ID</p>
+            <div onclick="unlock()" style="font-size:60px; cursor:pointer;">🔓</div>
+            <p>Déverrouiller</p>
         </div>
 
-        <div id="l-home" class="layer" style="padding:40px;">
-            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px;">
-                <div style="width:60px;height:60px;background:var(--ios-blue);border-radius:15px;display:flex;justify-content:center;align-items:center;font-size:30px;cursor:pointer;" onclick="openWeb()">🌐</div>
-                <div style="width:60px;height:60px;background:#333;border-radius:15px;display:flex;justify-content:center;align-items:center;font-size:30px;">📸</div>
+        <div id="l-home" class="layer">
+            <div class="app-grid">
+                <div class="app-icon" style="background:var(--ios-blue)" onclick="render('web')">🌐</div>
+                <div class="app-icon" style="background:var(--yt-red)" onclick="render('studio')">🎬</div>
+                <div class="app-icon">📸</div>
+                <div class="app-icon" style="background:#333">⚙️</div>
             </div>
         </div>
 
         <div id="l-web" class="layer">
-            <div class="web-header">
-                <div class="web-top-row">
-                    <span style="font-weight:bold; color:var(--ios-blue);">YouWeb</span>
-                    <button onclick="goHome()" style="border:none; background:none; font-size:18px;">✕</button>
-                </div>
-                <div class="web-url-bar">
-                    <input type="text" id="web-input" placeholder="Rechercher sur Wikipédia..." readonly onclick="showKB()">
-                </div>
+            <div style="background:#f1f1f1; color:black; padding:10px; display:flex; gap:10px;">
+                <input type="text" id="web-url" value="Wikipedia" style="flex:1; border-radius:5px; border:1px solid #ccc; padding:3px 10px;">
+                <button onclick="webGo()" style="background:var(--ios-blue); color:white; border:none; border-radius:5px; padding:0 10px;">Aller</button>
             </div>
-            <div class="web-content" id="web-res">
-                <div style="color:#888; text-align:center; margin-top:50px;">
-                    <p style="font-size:40px;">🌐</p>
-                    <p>Entrez un sujet pour explorer Wikipédia</p>
-                </div>
-            </div>
+            <iframe id="web-iframe" src="about:blank"></iframe>
         </div>
 
-        <div class="keyboard" id="kb">
-            <div class="key-row" id="row1"></div>
-            <div class="key-row" id="row2"></div>
-            <div class="key-row">
-                <div class="key" onclick="type(' ')">ESPACE</div>
-                <div class="key" onclick="del()">⌫</div>
-                <div class="key enter" onclick="search()">🔍</div>
-            </div>
+        <div class="home-button-container" id="home-container">
+            <div class="home-circle" onclick="goHome()"></div>
         </div>
-
-        <div class="taskbar"><span onclick="goHome()">🏠</span><span>📞</span><span onclick="openWeb()">🌐</span></div>
     </div>
 </div>
 
 <script>
-    let state = { power: false, fold: false, unlocked: false };
-    
-    function hwPower() {
-        if(!state.power) {
-            state.power = true; render('boot');
-            setTimeout(() => render('lock'), 2000);
-        } else { location.reload(); }
+    let sys = { power: false, unlocked: false };
+
+    function togglePowerMenu() {
+        if(!sys.power) { 
+            // Si éteint, on lance le boot
+            sys.power = true; 
+            render('boot'); 
+            setTimeout(() => render('lock'), 2500); 
+        } else {
+            // Si allumé, on affiche le menu d'extinction
+            const menu = document.getElementById('p-menu');
+            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+        }
     }
 
-    function hwFold() {
-        state.fold = !state.fold;
-        document.getElementById('frame').classList.toggle('unfolded', state.fold);
+    function sysAction(action) {
+        if(action === 'shutdown') {
+            document.getElementById('p-menu').style.display = 'none';
+            document.getElementById('home-container').style.display = 'none';
+            document.getElementById('sb').style.visibility = 'hidden';
+            sys.power = false;
+            sys.unlocked = false;
+            render('off');
+        } else {
+            location.reload();
+        }
     }
 
-    function unlock() { state.unlocked = true; render('home'); }
+    function hwFold() { document.getElementById('frame').classList.toggle('unfolded'); }
+
+    function unlock() { 
+        sys.unlocked = true; 
+        render('home'); 
+        document.getElementById('sb').style.visibility = 'visible';
+        document.getElementById('home-container').style.display = 'block';
+    }
+
+    function goHome() {
+        if(sys.unlocked) {
+            render('home');
+            document.getElementById('p-menu').style.display = 'none';
+        }
+    }
+
     function render(id) {
         document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
         document.getElementById('l-' + id).classList.add('active');
-        hideKB();
     }
 
-    // WEB LOGIC FIXED
-    function openWeb() { if(state.unlocked) render('web'); }
-    
-    function showKB() { document.getElementById('kb').classList.add('visible'); }
-    function hideKB() { document.getElementById('kb').classList.remove('visible'); }
-
-    function type(char) { document.getElementById('web-input').value += char; }
-    function del() { 
-        let v = document.getElementById('web-input').value;
-        document.getElementById('web-input').value = v.slice(0, -1);
+    function webGo() {
+        let q = document.getElementById('web-url').value;
+        document.getElementById('web-iframe').src = `https://fr.m.wikipedia.org/wiki/${encodeURIComponent(q)}`;
     }
-
-    function search() {
-        let q = document.getElementById('web-input').value;
-        if(!q) return;
-        hideKB();
-        let res = document.getElementById('web-res');
-        res.innerHTML = `<div class="wiki-card"><div class="wiki-title">${q}</div>
-                         <p>Chargement des données Wikipédia pour "${q}"...</p>
-                         <p style="font-size:13px; color:#666;">Note : YouWeb simule l'accès aux données API pour éviter les erreurs de sécurité iframe.</p>
-                         <button onclick="window.open('https://fr.wikipedia.org/wiki/${q}', '_blank')" 
-                                 style="background:var(--ios-blue); color:white; border:none; padding:10px; border-radius:5px; margin-top:10px;">
-                                 Ouvrir l'article complet ↗
-                         </button></div>`;
-    }
-
-    // Init Clavier
-    const chars = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
-    chars.forEach((row, i) => {
-        let r = document.getElementById('row' + (i+1));
-        if(r) [...row].forEach(c => {
-            let k = document.createElement('div');
-            k.className = 'key'; k.innerText = c;
-            k.onclick = () => type(c); r.appendChild(k);
-        });
-    });
 
     setInterval(() => {
-        let d = new Date();
-        document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0');
+        const d = new Date();
+        document.getElementById('time').innerText = d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0');
     }, 1000);
 </script>
 </body>
